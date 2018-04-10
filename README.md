@@ -12,7 +12,7 @@ fastlane add_plugin ding_talk
 
 ## About ding_talk
 
-Send the packaging information to the ding talk.
+Auto send the pgyer app qr code to the ding talk.
 
 ## Example
 
