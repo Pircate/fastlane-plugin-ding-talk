@@ -10,8 +10,8 @@ Gem::Specification.new do |spec|
   spec.author        = 'gaoxiang'
   spec.email         = 'gao497868860@163.com'
 
-  spec.summary       = 'Send the packaging information to the ding talk.'
-  # spec.homepage      = "https://github.com/<GITHUB_USERNAME>/fastlane-plugin-ding_talk"
+  spec.summary       = 'Auto send the pgyer app qr code to the ding talk.'
+  spec.homepage      = "https://github.com/GorXion/fastlane-plugin-ding-talk"
   spec.license       = "MIT"
 
   spec.files         = Dir["lib/**/*"] + %w(README.md LICENSE)
