@@ -23,24 +23,25 @@ module Fastlane
         UI.message("Start get app information from pgyer...")
 
         response = Net::HTTP.post_form URI(api_host), params
-        result = JSON.parse(response.body)["data"]
+        result = JSON.parse(response.body)
 
+        status_code = result["code"]
+        status_message = result["message"]
+
+        if status_code != 0
+          UI.error('error_message: ' + status_message)
+          return
+        end
+
+        UI.success("Get app information success!")
         # 应用二维码地址
-        buildQRCodeURL = result["buildQRCodeURL"]
-
-        # 应用短链接
-        buildShortcutUrl = 'https://www.pgyer.com/' + result["buildShortcutUrl"]
-
-        UI.message("Get app information success!")
-
-        puts buildQRCodeURL
-        puts buildShortcutUrl
+        buildQRCodeURL = result["data"]["buildQRCodeURL"]
         puts "#{{ 'msgtype' => 'markdown', 'markdown' => {'title': '', 'text': "#{markdown_desc} <br> ![](#{buildQRCodeURL})" } }}"
 
         Net::HTTP.post URI('https://oapi.dingtalk.com/robot/send?access_token=#{access_token}'),
                { 'msgtype' => 'markdown', 'markdown' => {'title': '', 'text': "#{markdown_desc} <br> ![](#{buildQRCodeURL})" } }.to_json,
                "Content-Type" => "application/json"
-        UI.message("Send ding talk success!")
+        UI.success("Send ding talk success!")
 
       end
 
