@@ -44,7 +44,7 @@ module Fastlane
         req.body = { 
           'msgtype' => 'markdown',
           'markdown' => {
-            'title': 'ding_talk', 
+            'title': 'A new app update from fastlane.', 
             'text': "#{markdown_desc} <br> ![](#{buildQRCodeURL})"
           },
           'at': {
