@@ -8,39 +8,59 @@ module Fastlane
 
         UI.message("The ding_talk plugin is working!")
 
-        api_host = 'https://www.pgyer.com/apiv2/app/view'
         api_key = params[:api_key]
         app_key = params[:app_key]
         access_token = params[:access_token]
         markdown_desc = params[:markdown_desc]
+        isAtAll = params[:isAtAll]
 
         params = {
           '_api_key' => api_key,
           'appKey' => app_key
         }
 
-        # 获取App详细信息
         UI.message("Start get app information from pgyer...")
 
-        response = Net::HTTP.post_form URI(api_host), params
+        # 获取App详细信息
+        response = Net::HTTP.post_form URI('https://www.pgyer.com/apiv2/app/view'), params
         result = JSON.parse(response.body)
 
         status_code = result["code"]
         status_message = result["message"]
 
         if status_code != 0
-          UI.error('error_message: ' + status_message)
+          UI.error('pgyer_error_message: ' + status_message)
           return
         end
 
         UI.success("Get app information success!")
         # 应用二维码地址
         buildQRCodeURL = result["data"]["buildQRCodeURL"]
-        puts "#{{ 'msgtype' => 'markdown', 'markdown' => {'title': '', 'text': "#{markdown_desc} <br> ![](#{buildQRCodeURL})" } }}"
 
-        Net::HTTP.post URI('https://oapi.dingtalk.com/robot/send?access_token=#{access_token}'),
-               { 'msgtype' => 'markdown', 'markdown' => {'title': '', 'text': "#{markdown_desc} <br> ![](#{buildQRCodeURL})" } }.to_json,
-               "Content-Type" => "application/json"
+        # 将应用信息发送到钉钉
+        uri = URI.parse("https://oapi.dingtalk.com/robot/send?access_token=#{access_token}")
+        https = Net::HTTP.new(uri.host, uri.port)
+        https.use_ssl = true
+        req = Net::HTTP::Post.new(uri.request_uri)
+        req.body = { 
+          'msgtype' => 'markdown',
+          'markdown' => {
+            'title': 'ding_talk', 
+            'text': "#{markdown_desc} <br> ![](#{buildQRCodeURL})"
+          },
+          'at': {
+            'atMobiles': [], 
+            'isAtAll': isAtAll
+          }
+        }.to_json
+        req.content_type = 'application/json'
+        resp = https.request(req)
+        json = JSON.parse(resp.body)
+
+        if json["errcode"] != 0
+          UI.error('ding_talk_error_message: ' +  json["errmsg"])
+          return
+        end
         UI.success("Send ding talk success!")
 
       end
@@ -67,23 +87,28 @@ module Fastlane
           FastlaneCore::ConfigItem.new(key: :api_key,
                                   env_name: "PGYER_API_KEY",
                                description: "api_key in your pgyer account",
-                                  optional: true,
+                                  optional: false,
                                       type: String),
           FastlaneCore::ConfigItem.new(key: :app_key,
                                   env_name: "PGYER_APP_KEY",
                                description: "app_key for your app",
-                                  optional: true,
+                                  optional: false,
                                       type: String),
           FastlaneCore::ConfigItem.new(key: :access_token,
                                   env_name: "DING_TALK_ROBOT_ACCESS_TOKEN",
                                description: "access_token for your ding talk robot",
-                                  optional: true,
+                                  optional: false,
                                       type: String),
           FastlaneCore::ConfigItem.new(key: :markdown_desc,
                                   env_name: "DING_TALK_APP_DESCRIPTION",
                                description: "description for your app",
-                                  optional: false,
-                                      type: String)
+                                  optional: true,
+                                      type: String),
+          FastlaneCore::ConfigItem.new(key: :isAtAll,
+                                  env_name: "DING_TALK_IS_AT_ALL",
+                               description: "is at all",
+                                  optional: true,
+                                 is_string: false)
         ]
       end
 
