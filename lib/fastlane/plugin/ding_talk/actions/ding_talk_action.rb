@@ -28,11 +28,11 @@ module Fastlane
         status_message = result["message"]
 
         if status_code != 0
-          UI.error('pgyer_error_message: ' + status_message)
+          UI.error('pgyer error message: ' + status_message)
           return
         end
 
-        UI.success("Get app information success!")
+        UI.success("Successfully get app information!")
         # 应用二维码地址
         buildQRCodeURL = result["data"]["buildQRCodeURL"]
 
@@ -57,10 +57,10 @@ module Fastlane
         json = JSON.parse(resp.body)
 
         if json["errcode"] != 0
-          UI.error('ding_talk_error_message: ' +  json["errmsg"])
+          UI.error('ding talk error message: ' +  json["errmsg"])
           return
         end
-        UI.success("Send ding talk success!")
+        UI.success("Successfully send qr code to ding talk!")
 
       end
 
