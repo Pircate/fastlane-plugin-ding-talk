@@ -12,7 +12,6 @@ module Fastlane
         app_key = params[:app_key]
         access_token = params[:access_token]
         markdown_desc = params[:markdown_desc]
-        isAtAll = params[:isAtAll]
 
         params = {
           '_api_key' => api_key,
@@ -50,7 +49,7 @@ module Fastlane
           },
           'at': {
             'atMobiles': [], 
-            'isAtAll': isAtAll
+            'isAtAll': false
           }
         }.to_json
         req.content_type = 'application/json'
@@ -103,12 +102,7 @@ module Fastlane
                                   env_name: "DING_TALK_APP_DESCRIPTION",
                                description: "description for your app",
                                   optional: true,
-                                      type: String),
-          FastlaneCore::ConfigItem.new(key: :isAtAll,
-                                  env_name: "DING_TALK_IS_AT_ALL",
-                               description: "is at all",
-                                  optional: true,
-                                 is_string: false)
+                                      type: String)
         ]
       end
 
